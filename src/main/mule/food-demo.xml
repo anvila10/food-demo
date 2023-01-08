@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1f4027ae-9b18-43ad-bd33-ea180acc9e4b" >
+		<http:listener-connection host="localhost" port="8082" protocol="HTTPS">
+			<tls:context >
+				<tls:trust-store path="client-truststore.jks" password="mulesoft" type="jks" />
+				<tls:key-store type="jks" path="server-keystore.jks" alias="mule" keyPassword="mulesoft" password="mulesoft" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="6b5738e4-f17b-4d69-b5fb-0e3cf2879cae" >
+		<http:request-connection protocol="HTTPS" host="localhost" port="8082" >
+			<tls:context >
+				<tls:trust-store path="client-truststore.jks" password="mulesoft" type="jks" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<flow name="food-demoFlow" doc:id="80f87443-05e2-4cbd-9b8f-df9b6aa7a3f1" >
+		<http:listener doc:name="Listener" doc:id="c16cbfcb-790d-4603-b003-d60794036716" config-ref="HTTP_Listener_config" path="/food"/>
+		<set-variable value="#[attributes.queryParams.name]" doc:name="Set Variable" doc:id="98e4a7eb-df57-4062-90aa-d404dc16fcf6" variableName="name"/>
+		<set-payload value='#["welcome" ++ vars.name as String ++ "to mulesoft"]' doc:name="Set Payload" doc:id="689a2759-2c35-4fc1-b532-34f041b4cefe" />
+		<logger level="INFO" doc:name="Logger" doc:id="fe23001c-c197-4730-9f10-f802795353ce" message="#[payload]"/>
+	</flow>
+	<flow name="food-demoFlow1" doc:id="7e267dcd-dffe-4c02-9ada-0b7ec52c359f" >
+		<http:listener doc:name="Listener" doc:id="f433093d-a8f9-417d-aa30-c582e1dececd" config-ref="HTTP_Listener_config" path="/food1"/>
+		<http:request method="GET" doc:name="Request" doc:id="24f8f35b-f64e-4fa0-9c63-8ee07843cc14" config-ref="HTTP_Request_configuration" path="/food"/>
+	</flow>
+</mule>
